@@ -1,0 +1,165 @@
+{
+  "name": "WhatsApp AI Demo Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "e95a60f6-936f-4632-9302-239070a8e7d8",
+      "name": "WhatsApp Trigger",
+      "webhookId": "2097a8cb-f9fb-4c7f-9835-4209f02e3d3f",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "GTjWITizzA9zoZfL",
+          "name": "WhatsApp Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1272990135893602",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "= {{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "ace682db-1137-4a93-8e05-080e458a3e3f",
+      "name": "Send message",
+      "webhookId": "5a8e8747-e4d8-4b26-b1aa-8740be38413e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "0h2MZPGRJQZGzWW3",
+          "name": "WhatsApp test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are a helpful, friendly, and conversational assistant.\n\nYour task is to generate an appropriate reply to the user's latest message.\n\nFollow these rules:\n\nUnderstand the user's message before replying.\nGive a clear and relevant response.\nKeep the conversation natural and engaging.\nIf the user asks a question, answer it directly.\nIf more information is needed, ask one simple and relevant follow-up question.\nDo not ask unnecessary questions.\nMatch the user's tone (casual, professional, friendly, etc.).\nKeep the response concise unless the user asks for detailed information.\nDo not repeat the user's message unnecessarily.\nAvoid robotic or overly formal language.\nIf the user is confused, explain the topic simply.\nIf the user is asking for help, provide actionable guidance.\nEnd naturally in a way that allows the conversation to continue when appropriate.\n\nUser message: {{ $json.messages[0].text.body }}\n\n\nGenerate only the reply that should be sent to the user."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        80,
+        0
+      ],
+      "id": "76c53e26-1dcd-4874-ac2f-befc4145b1f7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        208
+      ],
+      "id": "37c20bf6-eda9-4c33-882c-5211d79701cd",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "2pALPH8M1VCM3hBO",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.messages[0].from }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        96,
+        208
+      ],
+      "id": "a32d59d9-517b-431d-9959-67da7fec30ef",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e09ccbab-c765-4bf9-a91a-d59e1bb3de40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "04553c8fbe92a48f1f8cf331b3b2fbde8deeadd0aca6cae71d099ce8328cbc34"
+  },
+  "nodeGroups": [],
+  "id": "dX4n2iKGM5vKfNNw",
+  "tags": []
+}
